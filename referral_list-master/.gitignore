@@ -1,0 +1,6 @@
+/target
+bearer.token
+cookies.json
+.env
+*.json
+rm_working_path
