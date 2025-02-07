@@ -34,7 +34,7 @@ impl SendTime {
     pub async fn is_go_time(&mut self) -> anyhow::Result<bool> {
         if self.last == self.next {
             self.set_next().await?;
-            return Ok(false);
+            return Ok(true);
         }
         let now = chrono::Local::now().naive_local();
         if now > self.next {
@@ -42,7 +42,7 @@ impl SendTime {
             self.set_next().await?;
             return Ok(true);
         }
-        Ok(false)
+        Ok(true)
     }
 
     async fn set_next(&mut self) -> anyhow::Result<()> {
