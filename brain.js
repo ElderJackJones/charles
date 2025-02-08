@@ -9,17 +9,73 @@ import loading from 'loading-cli'
 // unless you understand what you're doing
 
 // open holly-master
-function inflictHolly(path, command) {
-    const load = loading('booting up holly').start()
-    robot.typeString(`cd ${path}`)
-    robot.keyTap('enter')
-    load.text = 'opening folders'
+function inflictCharles(path, command, swirl, process) {
+    swirl(process, 'opening secret doors...')
     setTimeout(() => {
-        load.text = 'starting holly'
-        robot.typeString(command)
-        robot.keyTap('enter')
-        load.succeed('holly listening')
+        swirl(process, "please don't touch any keys")
     }, 1000)
+
+    // switching to new tab
+    robot.keyToggle('control', 'down')
+    robot.keyToggle('shift', 'down')
+    robot.keyTap('t')
+    robot.keyToggle('control', 'up')
+    robot.keyToggle('shift', 'up')
+    robot.keyToggle('shift', 'up')
+
+    // start up Charles system
+    robot.typeString(`cd "C:\\Users\\2245760-MTS\\OneDrive - Church of Jesus Christ\\Desktop\\charles\\holly-master"`)
+    robot.keyTap('enter')
+    robot.typeString('cargo run --release')
+    robot.keyTap('enter')
+
+
+    // open new tab
+
+    robot.keyToggle('control', 'down')
+    robot.keyToggle('shift', 'down')
+    robot.keyTap('t')
+    robot.keyToggle('control', 'up')
+    robot.keyToggle('shift', 'up')
+    robot.keyToggle('shift', 'up')
+
+    // start up referrals list
+    robot.typeString(`cd "C:\\Users\\2245760-MTS\\OneDrive - Church of Jesus Christ\\Desktop\\charles\\referral_list-master"`)
+    robot.keyTap('enter')
+    robot.typeString('cargo run --release')
+    robot.keyTap('enter')
+    robot.keyTap('enter')
+    robot.keyTap('down')
+    robot.keyTap('enter')
+
+    for (let i = 0; i <= 2; i++) {
+        robot.keyTap('down')
+    }
+
+    robot.keyTap('enter')
+    
+
+    // head back to main
+    //robot.keyToggle('control', 'down')
+    //robot.keyToggle('shift', 'down')
+    //robot.keyTap('tab')
+    //robot.keyToggle('control', 'up')
+    //robot.keyToggle('shift', 'up')
+    //robot.keyToggle('shift', 'up')
+    
+
+    process.succeed('Charles has done his thing!')
 }
 
-inflictHolly('holly-master', 'cargo run --release')
+// groovy loading indicator for monkeys 
+function swirl(indicator, text) {
+    indicator.text = text
+}
+
+
+function brain() {
+    const loadCharles = loading(`summoning charles, don't touch any keys!'`).start()
+    setTimeout(() => inflictCharles('./holly-master', 'cargo run --release', swirl, loadCharles), 1000)
+}
+
+brain()
