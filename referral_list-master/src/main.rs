@@ -15,14 +15,14 @@ mod holly;
 mod persons;
 mod report;
 
-const CLI_OPTIONS: [&str; 6] = ["report", "generate", "average", "holly", "settings", "exit"];
+const CLI_OPTIONS: [&str; 6] = ["report", "generate", "average", "charles", "settings", "yeet"];
 const CLI_DESCRIPTONS: [&str; 6] = [
     "Reads today's report of uncontacted referrals or fetches a new one",
     "Generates a new list of uncontacted referrals, regardless of the cache.",
     "Gets the average contact time in minutes between zones",
-    "Connects to Holly and responds to messages",
-    "Change the settings for Holly",
-    "Exits the program",
+    "Connects to Charles and responds to messages",
+    "Change the settings for Charles",
+    "Nopes outta there faster than Severus Snape confronted with shampoo.",
 ];
 
 #[tokio::main]
@@ -86,7 +86,7 @@ async fn parse_argument(arg: &str, church_client: &mut ChurchClient) -> anyhow::
             }
             Ok(true)
         }
-        "holly" => {
+        "charles" => {
             holly::main(church_client).await?;
             Ok(false)
         }
@@ -101,7 +101,7 @@ async fn parse_argument(arg: &str, church_client: &mut ChurchClient) -> anyhow::
             church_client.holly_config = Some(config);
             Ok(true)
         }
-        "exit" => Ok(false),
+        "yeet" => Ok(false),
         "help" | "-h" => {
             println!("Referral List - a tool to get and parse a list of referrals from referral manager.");
             for i in 0..CLI_OPTIONS.len() {
