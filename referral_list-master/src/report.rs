@@ -21,26 +21,27 @@ impl Report {
 
     pub fn add_person(&mut self, person: Person) {
         if let Some(zone_id) = person.zone_id {
-            let zone = match self.people.get_mut(&zone_id) {
-                Some(z) => z,
-                None => {
-                    self.zones
-                        .insert(zone_id, person.zone_name.unwrap_or(zone_id.to_string()));
-                    self.people.insert(zone_id, HashMap::new());
-                    self.people.get_mut(&zone_id).unwrap()
-                }
-            };
-            let area_name = person.area_name.unwrap_or("NO AREA".to_string());
-            if let Some(area) = zone.get_mut(&area_name) {
-                area.push(person.first_name);
-            } else {
-                zone.insert(area_name, vec![person.first_name]);
-            }
+            // Ensure the zone exists.
+            let zone = self.people.entry(zone_id).or_insert_with(|| {
+                let zone_name = person.zone_name.unwrap_or_else(|| zone_id.to_string());
+                self.zones.insert(zone_id, zone_name);
+                HashMap::new()
+            });
+    
+            // Use the raw area name (or "NO AREA" if missing).
+            let area_key = person.area_name.unwrap_or_else(|| "NO AREA".to_string());
+            
+            // Insert or update the area with the person’s name.
+            zone.entry(area_key)
+                .and_modify(|people| {
+                    people.push(format!("    * {}", person.first_name));
+                })
+                .or_insert_with(|| vec![format!("    * {}", person.first_name)]);
         } else {
-            self.unassigned.push(person.first_name)
+            self.unassigned.push(person.first_name);
         }
     }
-
+    
     pub fn pretty_print(&self) -> String {
         let mut res = "".to_string();
         for (zone_id, areas) in &self.people {
@@ -49,7 +50,7 @@ impl Report {
         }
         res = format!("{res}\nUnassigned Referrals");
         for p in &self.unassigned {
-            res = format!("  - {p}")
+            res = format!("{p}")
         }
         res
     }
@@ -61,9 +62,9 @@ impl Report {
 
         res = format!("{res}\n{zone_name}");
         for (area, people) in areas {
-            res = format!("{res}\n\n - {area}");
+            res = format!("{res}\n\n- {area}");
             for p in people {
-                res = format!("{res}\n  - {p}");
+                res = format!("{res}\n{p}");
             }
         }
         res

@@ -95,7 +95,8 @@ pub async fn main(church_client: &mut ChurchClient) -> anyhow::Result<()> {
                     }
                 }
                 
-
+                
+                // the following is my baby and I wrote it in Rust
                 let mut avg_report = String::new();
                 for (k, v) in contacts {
                     if let Some(bl) = &holly_config.blacklist {
@@ -103,11 +104,20 @@ pub async fn main(church_client: &mut ChurchClient) -> anyhow::Result<()> {
                             continue;
                         }
                     }
-                    avg_report = format!("{avg_report}\n{k}: {}", format_contact_time(v));
+                    let contact_time = format_contact_time(v);
+                    let mut mut_k = k.clone();
+
+                    if !k.starts_with(" ") {
+                        mut_k = format!(" {}", k);
+                    }
+
+                    avg_report = format!("{avg_report}\n-{mut_k}: {}", contact_time);
                 }
+                // my baby ends here
+
                 for (zone_id, chat_id) in &holly_config.zone_chats {
                     let msg = if let Some(p) = report.get_pretty_zone(zone_id) {
-                        format!("Good Morning, y'all! I hope everyone has a great day! Let's BELIEVE, and GO contact those referrals <3 \n ._.)/\\(._. \n \nAverage Contact Time:\n{avg_report}\n\n -->Uncontacted Referrals<--\n{p}")
+                        format!("Good Morning, y'all! I hope everyone has a great day! Let's BELIEVE, and GO contact those referrals! \n ._.)/\\(._. \n\n\n-->Average Contact Time:<--\n{avg_report}\n\n\n-->Uncontacted Referrals<--\n{p}")
                     } else {
                         info!("BOOYAH! No uncontacted referrals in {zone_id}");
                         format!("Average Contact Time:{avg_report}\n\nNo uncontacted referrals! Great work!")
