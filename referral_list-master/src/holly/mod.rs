@@ -117,10 +117,10 @@ pub async fn main(church_client: &mut ChurchClient) -> anyhow::Result<()> {
 
                 for (zone_id, chat_id) in &holly_config.zone_chats {
                     let msg = if let Some(p) = report.get_pretty_zone(zone_id) {
-                        format!("Good Morning, y'all! I hope everyone has a great day! Let's BELIEVE, and GO contact those referrals! \n ._.)/\\(._. \n\n\n-->Average Contact Time:<--\n{avg_report}\n\n\n-->Uncontacted Referrals<--\n{p}")
+                        format!("Good Morning, y'all! I hope everyone has a great day! Let's BELIEVE, and GO contact those referrals! \n ._.)/\\(._. \n\n\n-->Average Contact Time:<--\n{avg_report}\n\n\n-->Uncontacted Referrals<--\n{p}\n\n\nClarification: when I name something as an 'uncontacted referral' that means it's a referral you've received in the past 48hrs - 10 days that has not been successfully contacted <3. ")
                     } else {
                         info!("BOOYAH! No uncontacted referrals in {zone_id}");
-                        format!("Average Contact Time:{avg_report}\n\nNo uncontacted referrals! Great work!")
+                        format!("Good Morning, y'all! I hope everyone has a great day!\n\n\nAverage Contact Time:{avg_report}\n\n BOOYAH, No uncontacted referrals! Great work!\n\n(•_•)\n( •_•)>⌐■-■\n(⌐■_■)")
                     };
                     info!("Sending {msg} to {chat_id}");
                     stream.write_all(&Message {
