@@ -7,6 +7,9 @@ use tokio::{
     sync::mpsc::UnboundedSender,
     time::sleep_until,
 };
+use std::fs::OpenOptions;
+use std::io::Write;
+use std::fs::File;
 
 use crate::church::ChurchClient;
 
@@ -27,6 +30,10 @@ impl Message {
 }
 
 pub async fn main(church_client: &mut ChurchClient) -> anyhow::Result<()> {
+    pub fn clear_log() {
+        File::create("holly.log").expect("Failed to clear log file"); // Truncates the file
+    }
+    clear_log();
     info!("Connecting to Holly...");
     let holly_config = church_client
         .holly_config
@@ -85,6 +92,7 @@ pub async fn main(church_client: &mut ChurchClient) -> anyhow::Result<()> {
                 let mut contacts = contacts.into_iter().collect::<Vec<(String, usize)>>();
                 contacts.sort_unstable_by(|a, b| a.1.cmp(&b.1));
 
+                // the following is my baby and I wrote it in Rust
                 fn format_contact_time(total_minutes: usize) -> String {
                     if total_minutes < 60 {
                         format!("{}min", total_minutes)
@@ -95,8 +103,7 @@ pub async fn main(church_client: &mut ChurchClient) -> anyhow::Result<()> {
                     }
                 }
                 
-                
-                // the following is my baby and I wrote it in Rust
+
                 let mut avg_report = String::new();
                 for (k, v) in contacts {
                     if let Some(bl) = &holly_config.blacklist {
@@ -115,6 +122,7 @@ pub async fn main(church_client: &mut ChurchClient) -> anyhow::Result<()> {
                 }
                 // my baby ends here
 
+               
                 for (zone_id, chat_id) in &holly_config.zone_chats {
                     let msg = if let Some(p) = report.get_pretty_zone(zone_id) {
                         format!("Good Morning, y'all! I hope everyone has a great day! Let's BELIEVE, and GO contact those referrals! \n ._.)/\\(._. \n\n\n-->Average Contact Time:<--\n{avg_report}\n\n\n-->Uncontacted Referrals<--\n{p}\n\n\nClarification: when I name something as an 'uncontacted referral' that means it's a referral you've received in the past 48hrs - 10 days that has not been successfully contacted <3. ")
@@ -138,8 +146,18 @@ pub async fn main(church_client: &mut ChurchClient) -> anyhow::Result<()> {
                         ..Default::default()
                     }.to_bytes()).await?;
                 }
+                pub fn log_message(message: &str) {
+                    let mut file = OpenOptions::new()
+                        .create(true)
+                        .append(true)
+                        .open("holly.log")
+                        .expect("Cannot open log file");
+                    writeln!(file, "{}", message).expect("Failed to write to log file");
+                }
+                
+                log_message("DONE");
             }
-            println!("All done! Type 'q' to exit.")
+           
         }
         // Option 3: User requested disconnect.
         _ = rx.recv() => {
