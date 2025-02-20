@@ -10,12 +10,13 @@ def watch_log_file(log_path):
             line = file.readline()
             if line:
                 print(line.strip())
-                if "All done! Type 'q' to exit." in line:
-                    pyautogui.write('q\n')
+                if "DONE" in line:
+                    pyautogui.write('q \n')
                     pyautogui.hotkey('ctrl', 'shift', 'w')
                     break
             else:
                 time.sleep(1)  # Avoid high CPU usage
+
 
 
 def main():
@@ -64,38 +65,32 @@ def main():
     print("Username:", username)
 
     # Start the subprocesses
-    try:
-        holly = subprocess.Popen(
-            ["powershell", "-NoExit", "-Command", "cd holly-master; cargo run --release"],
-            creationflags=subprocess.CREATE_NEW_CONSOLE,
-        )
+    holly = subprocess.Popen(
+        ["powershell", "-NoExit", "-Command", "cd holly-master; cargo run --release"],
+        creationflags=subprocess.CREATE_NEW_CONSOLE,
+    )
 
-        referral = subprocess.Popen(
-            ["powershell", "-NoExit", "-Command", "cd referral_list-master; cargo run --release"],
-            creationflags=subprocess.CREATE_NEW_CONSOLE,
-        )
+    referral = subprocess.Popen(
+        ["powershell", "-NoExit", "-Command", "cd referral_list-master; cargo run --release"],
+        creationflags=subprocess.CREATE_NEW_CONSOLE,
+    )
 
-        time.sleep(3)  
+    # Open holly
+    time.sleep(3)
+    pyautogui.write(username + "\n", interval=0.1)
+    pyautogui.press(['enter', 'enter', 'enter'])
+    
+    for i in range(3):
+        pyautogui.press('down')
 
-        pyautogui.hotkey('alt', 'tab')
+    time.sleep(15)
+    pyautogui.press('enter')
 
-        # Open holly
-        time.sleep(2)
-        pyautogui.write(username + "\n", interval=0.1)
-        pyautogui.press(['enter', 'enter', 'enter'])
-        
-        for i in range(3):
-            pyautogui.press('down')
+    watch_log_file('referral_list-master\holly.log')
 
-        time.sleep(10)
-        pyautogui.press('enter')
+    holly.wait()
+    referral.wait()
 
-        watch_log_file('referral_list-master\holly.log')
 
-        holly.wait()
-        referral.wait()
-
-    except Exception as e:
-        print(f"An error occurred: {e}")
 
 main()
