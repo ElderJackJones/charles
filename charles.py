@@ -3,9 +3,9 @@ import time
 import pyautogui
 import PySimpleGUI as sg
 
-def watch_log_file(log_path):
+def watch_log_file(log_path, child):
     with open(log_path, "r") as file:
-        file.seek(0, 2)  # Move to the end of the file
+        file.seek(0, 2)  
         while True:
             line = file.readline()
             if line:
@@ -15,12 +15,20 @@ def watch_log_file(log_path):
                     pyautogui.hotkey('ctrl', 'shift', 'w')
                     break
             else:
-                time.sleep(1)  # Avoid high CPU usage
+                time.sleep(1) 
+    final_delete(child)
+
+def final_delete(child):
+    sg.popup_ok("Click 'OK' when all messages have been sent!")
+    child.kill()
+    pyautogui.hotkey('ctrl', 'shift', 'w')
+    
+
 
 
 
 def main():
-    # GUI code for username input (unchanged)
+   
     lds_blue = "#023047"
     lds_white = "#ffffff"
     light_blue = "#8ecae6"
@@ -52,19 +60,18 @@ def main():
     while True:
         event, values = window.read()
         if event in (sg.WIN_CLOSED, "Cancel"):
-            return  # Exit on cancel
+            return  
         if event == "Submit":
             username = values['username'].strip()
             if username:
                 break
             else:
-                sg.popup_error("Username cannot be empty!")  # Error message
+                sg.popup_error("Username cannot be empty!")  
 
     window.close()
 
     print("Username:", username)
 
-    # Start the subprocesses
     holly = subprocess.Popen(
         ["powershell", "-NoExit", "-Command", "cd holly-master; cargo run --release"],
         creationflags=subprocess.CREATE_NEW_CONSOLE,
@@ -75,7 +82,6 @@ def main():
         creationflags=subprocess.CREATE_NEW_CONSOLE,
     )
 
-    # Open holly
     time.sleep(3)
     pyautogui.write(username + "\n", interval=0.1)
     pyautogui.press(['enter', 'enter', 'enter'])
@@ -86,10 +92,9 @@ def main():
     time.sleep(15)
     pyautogui.press('enter')
 
-    watch_log_file('referral_list-master\holly.log')
-
-    holly.wait()
-    referral.wait()
+    watch_log_file('referral_list-master\holly.log', holly)
+    
+    
 
 
 

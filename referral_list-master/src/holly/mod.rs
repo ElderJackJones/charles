@@ -10,6 +10,10 @@ use tokio::{
 use std::fs::OpenOptions;
 use std::io::Write;
 use std::fs::File;
+use anyhow::{Context, Result};
+use rand::seq::SliceRandom;
+use serde_json::Value;
+use std::fs;
 
 use crate::church::ChurchClient;
 
@@ -122,10 +126,32 @@ pub async fn main(church_client: &mut ChurchClient) -> anyhow::Result<()> {
                 }
                 // my baby ends here
 
-               
+                fn get_random_message(file_path: &str) -> Result<String> {
+                    // Read the JSON file
+                    let file_content = fs::read_to_string(file_path)
+                        .with_context(|| format!("Failed to read file: {}", file_path))?;
+                    
+                    // Parse JSON
+                    let json: Value = serde_json::from_str(&file_content)
+                        .context("Failed to parse JSON")?;
+                    
+                    // Extract messages array
+                    let messages = json.get("messages")
+                        .and_then(|v| v.as_array())
+                        .context("Missing or invalid 'messages' array in JSON")?;
+                    
+                    // Select a random message
+                    let message = messages.choose(&mut rand::thread_rng())
+                        .and_then(|v| v.as_str())
+                        .context("No valid string messages found")?;
+                    
+                    Ok(message.to_string())
+                }
+                
                 for (zone_id, chat_id) in &holly_config.zone_chats {
+                    let rand_message = get_random_message("C:\\Users\\sccha\\Desktop\\charles\\referral_list-master\\src\\messages.json")?;
                     let msg = if let Some(p) = report.get_pretty_zone(zone_id) {
-                        format!("Good Morning, y'all! I hope everyone has a great day! Let's BELIEVE, and GO contact those referrals! \n ._.)/\\(._. \n\n\n-->Average Contact Time:<--\n{avg_report}\n\n\n-->Uncontacted Referrals<--\n{p}\n\n\nClarification: when I name something as an 'uncontacted referral' that means it's a referral you've received in the past 48hrs - 10 days that has not been successfully contacted <3. ")
+                        format!("{rand_message}\n\n\n-->Average Contact Time:<--\n{avg_report}\n\n\n-->Uncontacted Referrals<--\n{p}")
                     } else {
                         info!("BOOYAH! No uncontacted referrals in {zone_id}");
                         format!("Good Morning, y'all! I hope everyone has a great day!\n\n\nAverage Contact Time:{avg_report}\n\n BOOYAH, No uncontacted referrals! Great work!\n\n(•_•)\n( •_•)>⌐■-■\n(⌐■_■)")
